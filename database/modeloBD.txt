@@ -1,0 +1,349 @@
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+-- =============================================
+-- 1. ELIMINAR TODAS LAS TABLAS EN ORDEN CORRECTO
+-- =============================================
+DROP TABLE IF EXISTS `model_has_permissions`;
+DROP TABLE IF EXISTS `model_has_roles`;
+DROP TABLE IF EXISTS `permissions`;
+DROP TABLE IF EXISTS `roles`;
+DROP TABLE IF EXISTS `resultado_laboratorio`;
+DROP TABLE IF EXISTS `prueba_laboratorio`;
+DROP TABLE IF EXISTS `orden_laboratorio`;
+DROP TABLE IF EXISTS `consulta_procedimientos`;
+DROP TABLE IF EXISTS `cat_procedimientos`;
+DROP TABLE IF EXISTS `receta_tratamiento`;
+DROP TABLE IF EXISTS `medicamentos`;
+DROP TABLE IF EXISTS `ficha_turno`;
+DROP TABLE IF EXISTS `historial_medico`;
+DROP TABLE IF EXISTS `consulta_medica`;
+DROP TABLE IF EXISTS `emergency_contacts`;
+DROP TABLE IF EXISTS `direcciones`;
+DROP TABLE IF EXISTS `paciente_profiles`;
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `cat_pruebas_laboratorio`;
+DROP TABLE IF EXISTS `cat_categorias_pruebas`;
+DROP TABLE IF EXISTS `especialidades`;
+DROP TABLE IF EXISTS `cat_parentescos`;
+DROP TABLE IF EXISTS `cat_generos`;
+DROP TABLE IF EXISTS `cat_estados_civiles`;
+DROP TABLE IF EXISTS `cat_nacionalidades`;
+DROP TABLE IF EXISTS `cat_tipos_sangre`;
+
+-- =============================================
+-- 2. CATÁLOGOS BÁSICOS
+-- =============================================
+CREATE TABLE `cat_tipos_sangre` (
+  `id` tinyint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(5) NOT NULL,
+  `descripcion` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `cat_nacionalidades` (
+  `id` smallint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  `codigo_iso` char(2) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `cat_estados_civiles` (
+  `id` tinyint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `cat_generos` (
+  `id` tinyint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(30) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `cat_parentescos` (
+  `id` tinyint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 3. CATÁLOGOS PARA LABORATORIO (del formulario anterior)
+-- =============================================
+CREATE TABLE `cat_categorias_pruebas` (
+  `id` tinyint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cat_categorias_pruebas_nombre_unique` (`nombre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `cat_pruebas_laboratorio` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `categoria_id` tinyint UNSIGNED NOT NULL,
+  `nombre` varchar(150) NOT NULL,
+  `descripcion` text NULL,
+  `activa` boolean DEFAULT true,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`categoria_id`) REFERENCES `cat_categorias_pruebas`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 4. CATÁLOGO DE PROCEDIMIENTOS SUS (T17..., P07..., T02... del recetario)
+-- =============================================
+CREATE TABLE `cat_procedimientos` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(12) NOT NULL,
+  `nombre` varchar(255) NOT NULL,
+  `area` enum('Consulta Externa','Emergencia','Hospitalización','Otros') DEFAULT 'Consulta Externa',
+  `activa` boolean DEFAULT true,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cat_procedimientos_codigo_unique` (`codigo`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 5. ESPECIALIDADES + USERS (sin campo rol → usamos Spatie)
+-- =============================================
+CREATE TABLE `especialidades` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  `activa` boolean DEFAULT true,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `especialidades_nombre_unique` (`nombre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  `apellido_paterno` varchar(100) NOT NULL,
+  `apellido_materno` varchar(100) DEFAULT NULL,
+  `email` varchar(150) NOT NULL UNIQUE,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `especialidad_id` int UNSIGNED NULL,
+  `area_trabajo` varchar(100) DEFAULT NULL,
+  `remember_token` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`especialidad_id`) REFERENCES `especialidades`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 6. PERFIL PACIENTE + DIRECCIONES + CONTACTOS
+-- =============================================
+CREATE TABLE `paciente_profiles` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` bigint UNSIGNED NOT NULL UNIQUE,
+  `tipo_sangre_id` tinyint UNSIGNED NULL,
+  `nacionalidad_id` smallint UNSIGNED NULL,
+  `estado_civil_id` tinyint UNSIGNED NULL,
+  `genero_id` tinyint UNSIGNED NULL,
+  `alergias` text NULL,
+  `enfermedades_cronicas` text NULL,
+  `observaciones` text NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`tipo_sangre_id`) REFERENCES `cat_tipos_sangre`(`id`),
+  FOREIGN KEY (`nacionalidad_id`) REFERENCES `cat_nacionalidades`(`id`),
+  FOREIGN KEY (`estado_civil_id`) REFERENCES `cat_estados_civiles`(`id`),
+  FOREIGN KEY (`genero_id`) REFERENCES `cat_generos`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `direcciones` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `zona` varchar(100) DEFAULT NULL,
+  `calle` varchar(150) DEFAULT NULL,
+  `nro` varchar(20) DEFAULT NULL,
+  `referencia` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `emergency_contacts` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `nombre` varchar(150) NOT NULL,
+  `telefono` varchar(20) NOT NULL,
+  `parentesco_id` tinyint UNSIGNED NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`parentesco_id`) REFERENCES `cat_parentescos`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 7. CONSULTA MÉDICA + PROCEDIMIENTOS + INDICACIONES
+-- =============================================
+CREATE TABLE `consulta_medica` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `medico_id` bigint UNSIGNED NOT NULL,
+  `paciente_id` bigint UNSIGNED NOT NULL,
+  `fecha` date NOT NULL,
+  `hora` time NULL,
+  `motivo` varchar(255) NOT NULL,
+  `diagnostico` text NULL,
+  `tratamiento` text NULL,
+  `indicaciones_paciente` text NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`medico_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT,
+  FOREIGN KEY (`paciente_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `consulta_procedimientos` (
+  `consulta_id` int UNSIGNED NOT NULL,
+  `procedimiento_id` int UNSIGNED NOT NULL,
+  `observaciones` varchar(255) NULL,
+  PRIMARY KEY (`consulta_id`,`procedimiento_id`),
+  FOREIGN KEY (`consulta_id`) REFERENCES `consulta_medica`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`procedimiento_id`) REFERENCES `cat_procedimientos`(`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 8. RECETAS (con cantidades y valores como en el recetario oficial)
+-- =============================================
+CREATE TABLE `medicamentos` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(200) NOT NULL,
+  `presentacion` varchar(100) NULL,
+  `activa` boolean DEFAULT true,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `receta_tratamiento` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `consulta_id` int UNSIGNED NOT NULL,
+  `medicamento_id` int UNSIGNED NOT NULL,
+  `dosis` varchar(255) NOT NULL,
+  `frecuencia` varchar(100) NOT NULL,
+  `duracion` varchar(100) NULL,
+  `indicaciones` text NULL,
+  `cantidad_recetada` int UNSIGNED NULL,
+  `cantidad_dispensada` int UNSIGNED NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`consulta_id`) REFERENCES `consulta_medica`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`medicamento_id`) REFERENCES `medicamentos`(`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 9. LABORATORIO COMPLETO
+-- =============================================
+CREATE TABLE `orden_laboratorio` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `consulta_id` int UNSIGNED NULL,
+  `medico_id` bigint UNSIGNED NOT NULL,
+  `paciente_id` bigint UNSIGNED NOT NULL,
+  `fecha_solicitud` date NOT NULL,
+  `numero_registro` varchar(50) NULL,
+  `edad` tinyint UNSIGNED NULL,
+  `genero_id` tinyint UNSIGNED NULL,
+  `diagnosis_principal` text NULL,
+  `urgencia` enum('Unidad/Servicio','Urgente','Programada') DEFAULT 'Unidad/Servicio',
+  `observaciones_generales` text NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`consulta_id`) REFERENCES `consulta_medica`(`id`) ON DELETE SET NULL,
+  FOREIGN KEY (`medico_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT,
+  FOREIGN KEY (`paciente_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT,
+  FOREIGN KEY (`genero_id`) REFERENCES `cat_generos`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `prueba_laboratorio` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `orden_id` int UNSIGNED NOT NULL,
+  `cat_prueba_id` int UNSIGNED NOT NULL,
+  `observaciones_especificas` text NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`orden_id`) REFERENCES `orden_laboratorio`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`cat_prueba_id`) REFERENCES `cat_pruebas_laboratorio`(`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `resultado_laboratorio` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `prueba_id` int UNSIGNED NOT NULL,
+  `resultado` text NOT NULL,
+  `valor_referencia` varchar(255) NULL,
+  `emision` datetime NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`prueba_id`) REFERENCES `prueba_laboratorio`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 10. TURNOS + HISTORIAL
+-- =============================================
+CREATE TABLE `ficha_turno` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `paciente_id` bigint UNSIGNED NOT NULL,
+  `emision` datetime NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`paciente_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `historial_medico` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `paciente_id` bigint UNSIGNED NOT NULL,
+  `fecha` date NOT NULL,
+  `resumen` text NOT NULL,
+  `diagnostico` text NULL,
+  `tratamiento` text NULL,
+  `consulta_id` int UNSIGNED NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`paciente_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`consulta_id`) REFERENCES `consulta_medica`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================
+-- 11. SPATIE PERMISSIONS (roles múltiples por usuario)
+-- =============================================
+CREATE TABLE `roles` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `guard_name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `permissions` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `guard_name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `permissions_name_guard_name_unique` (`name`,`guard_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `model_has_roles` (
+  `role_id` bigint UNSIGNED NOT NULL,
+  `model_type` varchar(255) NOT NULL,
+  `model_id` bigint UNSIGNED NOT NULL,
+  PRIMARY KEY (`role_id`,`model_id`,`model_type`),
+  FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `model_has_permissions` (
+  `permission_id` bigint UNSIGNED NOT NULL,
+  `model_type` varchar(255) NOT NULL,
+  `model_id` bigint UNSIGNED NOT NULL,
+  PRIMARY KEY (`permission_id`,`model_id`,`model_type`),
+  FOREIGN KEY (`permission_id`) REFERENCES `permissions`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+COMMIT;
