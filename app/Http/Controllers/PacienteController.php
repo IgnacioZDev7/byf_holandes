@@ -13,12 +13,50 @@ use Illuminate\Support\Str;
 
 class PacienteController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pacientes = User::with(['perfilPaciente', 'direcciones', 'emergencyContacts'])
-            ->paginate(15);
+        $query = User::with(['perfilPaciente', 'direcciones', 'emergencyContacts']);
 
-        return view('pacientes.index', compact('pacientes'));
+        // Filtros
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                  ->orWhere('apellido_materno', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('telefono', 'like', "%{$search}%")
+                  ->orWhere('ci', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('tipo_sangre')) {
+            $query->whereHas('perfilPaciente', function($q) use ($request) {
+                $q->where('tipo_sangre_id', $request->tipo_sangre);
+            });
+        }
+
+        if ($request->filled('genero')) {
+            $query->whereHas('perfilPaciente', function($q) use ($request) {
+                $q->where('genero_id', $request->genero);
+            });
+        }
+
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('created_at', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('created_at', '<=', $request->fecha_hasta);
+        }
+
+        $pacientes = $query->paginate(15)->withQueryString();
+
+        // Datos para los filtros
+        $tiposSangre = \App\Models\CatTipoSangre::all();
+        $generos = \App\Models\CatGenero::all();
+
+        return view('pacientes.index', compact('pacientes', 'tiposSangre', 'generos'));
     }
 
     public function create()

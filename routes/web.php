@@ -30,27 +30,42 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('users', UserController::class);
-    Route::resource('pacientes', PacienteController::class)->parameters(['pacientes' => 'paciente']);
-    Route::resource('consultas', ConsultaController::class);
-    Route::resource('recetas', RecetaTratamientoController::class)->parameters(['recetas' => 'receta']);
-
-    Route::prefix('catalogos')->name('catalogos.')->group(function () {
-        Route::resource('procedimientos', ProcedimientoController::class)->parameters(['procedimientos' => 'procedimiento']);
-        Route::resource('categorias-pruebas', CategoriaPruebaController::class)->parameters(['categorias-pruebas' => 'categorias_prueba']);
-        Route::resource('pruebas', PruebaLaboratorioController::class)->parameters(['pruebas' => 'prueba']);
-        Route::resource('especialidades', EspecialidadController::class)->parameters(['especialidades' => 'especialidade']);
-        Route::resource('medicamentos', MedicamentoController::class)->parameters(['medicamentos' => 'medicamento']);
+    Route::middleware('role:admin')->group(function () {
+        Route::resource('users', UserController::class);
     });
 
-    Route::prefix('laboratorio')->name('laboratorio.')->group(function () {
-        Route::resource('ordenes', OrdenLaboratorioController::class)->parameters(['ordenes' => 'ordene']);
-        Route::resource('pruebas', OrdenPruebaController::class)->parameters(['pruebas' => 'prueba']);
-        Route::resource('resultados', ResultadoLaboratorioController::class)->parameters(['resultados' => 'resultado']);
+    Route::middleware('role:admin|medico|secretaria')->group(function () {
+        Route::resource('pacientes', PacienteController::class)->parameters(['pacientes' => 'paciente']);
+        Route::resource('consultas', ConsultaController::class);
+        Route::resource('turnos', FichaTurnoController::class)->parameters(['turnos' => 'turno']);
+        Route::get('turnos/{turno}/pdf', [FichaTurnoController::class, 'pdf'])->name('turnos.pdf');
     });
 
-    Route::resource('turnos', FichaTurnoController::class)->parameters(['turnos' => 'turno']);
-    Route::resource('historial-medico', HistorialMedicoController::class)->parameters(['historial-medico' => 'historial_medico']);
+    Route::middleware('role:admin|medico|farmacia')->group(function () {
+        Route::resource('recetas', RecetaTratamientoController::class)->parameters(['recetas' => 'receta']);
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::prefix('catalogos')->name('catalogos.')->group(function () {
+            Route::resource('procedimientos', ProcedimientoController::class)->parameters(['procedimientos' => 'procedimiento']);
+            Route::resource('categorias-pruebas', CategoriaPruebaController::class)->parameters(['categorias-pruebas' => 'categorias_prueba']);
+            Route::resource('pruebas', PruebaLaboratorioController::class)->parameters(['pruebas' => 'prueba']);
+            Route::resource('especialidades', EspecialidadController::class)->parameters(['especialidades' => 'especialidade']);
+            Route::resource('medicamentos', MedicamentoController::class)->parameters(['medicamentos' => 'medicamento']);
+        });
+    });
+
+    Route::middleware('role:admin|laboratorio')->group(function () {
+        Route::prefix('laboratorio')->name('laboratorio.')->group(function () {
+            Route::resource('ordenes', OrdenLaboratorioController::class)->parameters(['ordenes' => 'ordene']);
+            Route::resource('pruebas', OrdenPruebaController::class)->parameters(['pruebas' => 'prueba']);
+            Route::resource('resultados', ResultadoLaboratorioController::class)->parameters(['resultados' => 'resultado']);
+        });
+    });
+
+    Route::middleware('role:admin|medico')->group(function () {
+        Route::resource('historial-medico', HistorialMedicoController::class)->parameters(['historial-medico' => 'historial_medico']);
+    });
 });
 
 require __DIR__.'/auth.php';

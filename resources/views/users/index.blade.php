@@ -17,6 +17,69 @@
     @endif
 
     <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Filtros de Búsqueda</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('users.index') }}" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="search" class="form-label">Buscar</label>
+                    <input type="text" name="search" id="search" class="form-control" value="{{ request('search') }}" placeholder="Nombre, email, teléfono, CI...">
+                </div>
+                <div class="col-md-2">
+                    <label for="role" class="form-label">Rol</label>
+                    <select name="role" id="role" class="form-control">
+                        <option value="">Todos</option>
+                        @foreach($roles as $rol)
+                            <option value="{{ $rol->name }}" @selected(request('role') == $rol->name)>
+                                {{ ucfirst($rol->name) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="especialidad_id" class="form-label">Especialidad</label>
+                    <select name="especialidad_id" id="especialidad_id" class="form-control">
+                        <option value="">Todas</option>
+                        @foreach($especialidades as $especialidad)
+                            <option value="{{ $especialidad->id }}" @selected(request('especialidad_id') == $especialidad->id)>
+                                {{ $especialidad->nombre }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="fecha_desde" class="form-label">Fecha Desde</label>
+                    <input type="date" name="fecha_desde" id="fecha_desde" class="form-control" value="{{ request('fecha_desde') }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="fecha_hasta" class="form-label">Fecha Hasta</label>
+                    <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control" value="{{ request('fecha_hasta') }}">
+                </div>
+                <div class="col-12 d-flex flex-wrap gap-2 justify-content-start justify-content-md-end pt-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Filtrar
+                    </button>
+                    <a href="{{ route('users.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Lista de Usuarios</h3>
+            <div class="card-tools">
+                <span class="badge badge-info">{{ $users->total() }} usuarios</span>
+            </div>
+        </div>
         <div class="card-body table-responsive p-0">
             <table class="table table-hover">
                 <thead>

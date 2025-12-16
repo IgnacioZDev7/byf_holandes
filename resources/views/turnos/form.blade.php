@@ -45,9 +45,59 @@
                             <input type="datetime-local" name="emision" id="emision" class="form-control" value="{{ old('emision', optional($turno->emision)->format('Y-m-d\TH:i')) }}" required>
                         </div>
                     </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="medico_id">Médico</label>
+                            <select name="medico_id" id="medico_id" class="form-control">
+                                <option value="">-- Seleccione --</option>
+                                @foreach($medicos as $med)
+                                    <option value="{{ $med->id }}" @selected(old('medico_id', $turno->medico_id) == $med->id)>
+                                        {{ $med->nombre }} {{ $med->apellido_paterno }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="especialidad_id">Especialidad</label>
+                            <select name="especialidad_id" id="especialidad_id" class="form-control">
+                                <option value="">-- Seleccione --</option>
+                                @foreach($especialidades as $esp)
+                                    <option value="{{ $esp->id }}" @selected(old('especialidad_id', $turno->especialidad_id) == $esp->id)>
+                                        {{ $esp->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="d-flex justify-content-end">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="motivo">Motivo</label>
+                            <input type="text" name="motivo" id="motivo" class="form-control" value="{{ old('motivo', $turno->motivo) }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="estado">Estado</label>
+                            <select name="estado" id="estado" class="form-control">
+                                <option value="pendiente" @selected(old('estado', $turno->estado) == 'pendiente')>Pendiente</option>
+                                <option value="confirmado" @selected(old('estado', $turno->estado) == 'confirmado')>Confirmado</option>
+                                <option value="atendido" @selected(old('estado', $turno->estado) == 'atendido')>Atendido</option>
+                                <option value="cancelado" @selected(old('estado', $turno->estado) == 'cancelado')>Cancelado</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="observaciones">Observaciones</label>
+                    <textarea name="observaciones" id="observaciones" class="form-control" rows="3">{{ old('observaciones', $turno->observaciones) }}</textarea>
+                </div>
                     <a href="{{ route('turnos.index') }}" class="btn btn-secondary mr-2">Cancelar</a>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>

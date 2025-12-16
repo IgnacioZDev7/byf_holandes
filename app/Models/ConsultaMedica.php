@@ -20,6 +20,24 @@ class ConsultaMedica extends Model
         'diagnostico',
         'tratamiento',
         'indicaciones_paciente',
+        'presion_arterial',
+        'temperatura',
+        'frecuencia_cardiaca',
+        'frecuencia_respiratoria',
+        'peso',
+        'talla',
+        'imc',
+        'evolucion',
+        'notas_adicionales',
+    ];
+
+    protected $casts = [
+        'fecha' => 'date',
+        'hora' => 'datetime',
+        'temperatura' => 'decimal:1',
+        'peso' => 'decimal:2',
+        'talla' => 'decimal:2',
+        'imc' => 'decimal:2',
     ];
 
     public function medico()

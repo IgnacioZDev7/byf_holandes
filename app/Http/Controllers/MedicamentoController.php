@@ -9,9 +9,31 @@ use Illuminate\Validation\Rule;
 
 class MedicamentoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $medicamentos = Medicamento::orderBy('nombre')->paginate(15);
+        $query = Medicamento::query();
+
+        // Filtros
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('descripcion', 'like', "%{$search}%")
+                  ->orWhere('principio_activo', 'like', "%{$search}%")
+                  ->orWhere('laboratorio', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('tipo')) {
+            $query->where('tipo', $request->tipo);
+        }
+
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        $medicamentos = $query->orderBy('nombre')->paginate(15)->withQueryString();
+
         return view('medicamentos.index', compact('medicamentos'));
     }
 

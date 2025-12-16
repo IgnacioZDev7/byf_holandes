@@ -18,6 +18,18 @@ class HistorialMedico extends Model
         'diagnostico',
         'tratamiento',
         'consulta_id',
+        'antecedentes_personales',
+        'antecedentes_familiares',
+        'habitos',
+        'medicamentos_actuales',
+        'alergias',
+        'vacunas',
+        'examenes_fisicos',
+        'notas_importantes',
+    ];
+
+    protected $casts = [
+        'fecha' => 'date',
     ];
 
     public function paciente()

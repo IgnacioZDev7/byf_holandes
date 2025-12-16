@@ -6,6 +6,8 @@
     <h1>{{ $mode === 'create' ? 'Nueva consulta' : 'Editar consulta' }}</h1>
 @endsection
 
+@section('plugins.Select2', true)
+
 @section('content')
     <div class="card">
         <div class="card-body">
@@ -75,6 +77,55 @@
                     </div>
                 </div>
 
+                <h4 class="mt-4">Signos Vitales</h4>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="presion_arterial">Presión Arterial</label>
+                            <input type="text" name="presion_arterial" id="presion_arterial" class="form-control" value="{{ old('presion_arterial', $consulta->presion_arterial) }}" placeholder="120/80">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="temperatura">Temperatura (°C)</label>
+                            <input type="number" name="temperatura" id="temperatura" class="form-control" step="0.1" value="{{ old('temperatura', $consulta->temperatura) }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="frecuencia_cardiaca">Frecuencia Cardíaca (bpm)</label>
+                            <input type="number" name="frecuencia_cardiaca" id="frecuencia_cardiaca" class="form-control" value="{{ old('frecuencia_cardiaca', $consulta->frecuencia_cardiaca) }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="frecuencia_respiratoria">Frecuencia Respiratoria (rpm)</label>
+                            <input type="number" name="frecuencia_respiratoria" id="frecuencia_respiratoria" class="form-control" value="{{ old('frecuencia_respiratoria', $consulta->frecuencia_respiratoria) }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="peso">Peso (kg)</label>
+                            <input type="number" name="peso" id="peso" class="form-control" step="0.01" value="{{ old('peso', $consulta->peso) }}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="talla">Talla (m)</label>
+                            <input type="number" name="talla" id="talla" class="form-control" step="0.01" value="{{ old('talla', $consulta->talla) }}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="imc">IMC</label>
+                            <input type="number" name="imc" id="imc" class="form-control" step="0.01" value="{{ old('imc', $consulta->imc) }}" readonly>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="diagnostico">Diagnóstico</label>
                     <textarea name="diagnostico" id="diagnostico" class="form-control" rows="2">{{ old('diagnostico', $consulta->diagnostico) }}</textarea>
@@ -91,15 +142,28 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="evolucion">Evolución</label>
+                    <textarea name="evolucion" id="evolucion" class="form-control" rows="3">{{ old('evolucion', $consulta->evolucion) }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="notas_adicionales">Notas Adicionales</label>
+                    <textarea name="notas_adicionales" id="notas_adicionales" class="form-control" rows="2">{{ old('notas_adicionales', $consulta->notas_adicionales) }}</textarea>
+                </div>
+
+                <div class="form-group">
                     <label for="procedimientos">Procedimientos</label>
-                    <select name="procedimientos[]" id="procedimientos" class="form-control" multiple>
-                        @foreach($procedimientos as $proc)
-                            <option value="{{ $proc->id }}" @selected(collect(old('procedimientos', $consulta->procedimientos->pluck('id')->toArray()))->contains($proc->id))>
-                                {{ $proc->codigo }} - {{ $proc->nombre }}
-                            </option>
+                    <select name="procedimientos[]" id="procedimientos" class="form-control select2" multiple>
+                        @foreach($procedimientos as $area => $procs)
+                            <optgroup label="{{ $area }}">
+                                @foreach($procs as $proc)
+                                    <option value="{{ $proc->id }}" @selected(collect(old('procedimientos', $consulta->procedimientos->pluck('id')->toArray()))->contains($proc->id))>
+                                        {{ $proc->codigo }} - {{ $proc->nombre }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
                         @endforeach
                     </select>
-                    <small class="text-muted">Use Ctrl/Cmd para seleccionar varios.</small>
                 </div>
 
                 <div class="d-flex justify-content-end">
@@ -109,4 +173,30 @@
             </form>
         </div>
     </div>
+@endsection
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        $('#procedimientos').select2({
+            placeholder: 'Seleccione procedimientos',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Calcular IMC automáticamente
+        function calcularIMC() {
+            var peso = parseFloat($('#peso').val());
+            var talla = parseFloat($('#talla').val());
+            if (peso > 0 && talla > 0) {
+                var imc = peso / (talla * talla);
+                $('#imc').val(imc.toFixed(2));
+            } else {
+                $('#imc').val('');
+            }
+        }
+
+        $('#peso, #talla').on('input', calcularIMC);
+    });
+</script>
 @endsection

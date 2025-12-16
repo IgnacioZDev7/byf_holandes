@@ -5,18 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CatProcedimiento extends Model
+class CatGenero extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
-
-    protected $table = 'cat_procedimientos';
+    protected $table = 'cat_generos';
 
     protected $fillable = [
-        'codigo',
         'nombre',
-        'area',
-        'activa',
     ];
+
+    public $timestamps = false;
 }

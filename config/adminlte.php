@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Sistema</b> Salud',
+    'logo' => '<b>Hospital</b> Salud',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -196,11 +196,11 @@ return [
     'classes_content_wrapper' => '',
     'classes_content_header' => '',
     'classes_content' => '',
-    'classes_sidebar' => 'sidebar-dark-primary elevation-4',
+    'classes_sidebar' => 'sidebar-dark-teal elevation-4',
     'classes_sidebar_nav' => '',
-    'classes_topnav' => 'navbar-white navbar-light',
+    'classes_topnav' => 'navbar-teal navbar-dark',
     'classes_topnav_nav' => 'navbar-expand',
-    'classes_topnav_container' => 'container',
+    'classes_topnav_container' => 'container-fluid',
 
     /*
     |--------------------------------------------------------------------------
@@ -315,16 +315,19 @@ return [
         [
             'text' => 'Usuarios',
             'icon' => 'fas fa-users',
+            'can' => 'view-users',
             'submenu' => [
                 [
                     'text' => 'Listado',
                     'url' => 'users',
                     'icon' => 'fas fa-list',
+                    'can' => 'view-users',
                 ],
                 [
                     'text' => 'Crear usuario',
                     'url' => 'users/create',
                     'icon' => 'fas fa-user-plus',
+                    'can' => 'view-users',
                 ],
             ],
         ],
@@ -332,52 +335,68 @@ return [
             'text' => 'Pacientes',
             'url' => 'pacientes',
             'icon' => 'fas fa-user-injured',
+            'can' => 'view-pacientes',
         ],
         [
             'text' => 'Consultas',
             'url' => 'consultas',
             'icon' => 'fas fa-stethoscope',
+            'can' => 'view-consultas',
+        ],
+        [
+            'text' => 'Recetas',
+            'url' => 'recetas',
+            'icon' => 'fas fa-prescription-bottle',
+            'can' => 'view-recetas',
         ],
         [
             'text' => 'Laboratorio',
             'url' => 'laboratorio/ordenes',
             'icon' => 'fas fa-vials',
+            'can' => 'view-laboratorio',
         ],
         [
             'text' => 'Turnos',
             'url' => 'turnos',
             'icon' => 'fas fa-calendar-check',
+            'can' => 'view-turnos',
         ],
         [
             'text' => 'Historial médico',
             'url' => 'historial-medico',
             'icon' => 'fas fa-notes-medical',
+            'can' => 'view-historial',
         ],
         ['header' => 'Catálogos'],
         [
             'text' => 'Catálogos básicos',
             'url' => 'catalogos/basicos',
             'icon' => 'fas fa-list',
+            'can' => 'view-catalogos',
         ],
         [
             'text' => 'Procedimientos',
             'url' => 'catalogos/procedimientos',
             'icon' => 'fas fa-syringe',
+            'can' => 'view-procedimientos',
         ],
         [
             'text' => 'Pruebas de laboratorio',
             'url' => 'catalogos/pruebas',
             'icon' => 'fas fa-flask',
+            'can' => 'view-pruebas',
         ],
         [
             'text' => 'Medicamentos',
             'url' => 'catalogos/medicamentos',
             'icon' => 'fas fa-pills',
+            'can' => 'view-medicamentos',
         ],
         [
             'text' => 'Especialidades',
             'url' => 'catalogos/especialidades',
             'icon' => 'fas fa-briefcase-medical',
+            'can' => 'view-especialidades',
         ],
     ],
 
@@ -483,6 +502,16 @@ return [
                     'type' => 'js',
                     'asset' => false,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js',
+                ],
+            ],
+        ],
+        'CustomHealth' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => 'css/health.css',
                 ],
             ],
         ],

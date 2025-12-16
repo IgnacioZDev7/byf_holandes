@@ -18,11 +18,48 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('roles', 'especialidad')->paginate(15);
+        $query = User::with('roles', 'especialidad');
 
-        return view('users.index', compact('users'));
+        // Filtros
+        if ($request->filled('role')) {
+            $query->whereHas('roles', function($q) use ($request) {
+                $q->where('name', $request->role);
+            });
+        }
+
+        if ($request->filled('especialidad_id')) {
+            $query->where('especialidad_id', $request->especialidad_id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('apellido_paterno', 'like', "%{$search}%")
+                  ->orWhere('apellido_materno', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('telefono', 'like', "%{$search}%")
+                  ->orWhere('ci', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('created_at', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('created_at', '<=', $request->fecha_hasta);
+        }
+
+        $users = $query->paginate(15)->withQueryString();
+
+        // Datos para los filtros
+        $roles = Role::orderBy('name')->get();
+        $especialidades = Especialidad::orderBy('nombre')->get();
+
+        return view('users.index', compact('users', 'roles', 'especialidades'));
     }
 
     /**

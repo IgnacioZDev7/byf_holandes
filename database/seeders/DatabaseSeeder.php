@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CatalogosBasicosSeeder::class,
             RolesPermissionsSeeder::class,
+            ProcedimientosSeeder::class,
+            CategoriasPruebasSeeder::class,
         ]);
     }
 }

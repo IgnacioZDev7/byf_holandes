@@ -73,9 +73,67 @@
                     <textarea name="tratamiento" id="tratamiento" class="form-control" rows="2">{{ old('tratamiento', $registro->tratamiento) }}</textarea>
                 </div>
 
-                <div class="d-flex justify-content-end">
-                    <a href="{{ route('historial-medico.index') }}" class="btn btn-secondary mr-2">Cancelar</a>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                <hr>
+                <h4>Información Detallada del Historial Médico</h4>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="antecedentes_personales">Antecedentes Personales</label>
+                            <textarea name="antecedentes_personales" id="antecedentes_personales" class="form-control" rows="3" placeholder="Enfermedades previas, cirugías, etc.">{{ old('antecedentes_personales', $registro->antecedentes_personales) }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="antecedentes_familiares">Antecedentes Familiares</label>
+                            <textarea name="antecedentes_familiares" id="antecedentes_familiares" class="form-control" rows="3" placeholder="Enfermedades en la familia">{{ old('antecedentes_familiares', $registro->antecedentes_familiares) }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="habitos">Hábitos</label>
+                            <textarea name="habitos" id="habitos" class="form-control" rows="3" placeholder="Fumar, alcohol, ejercicio, etc.">{{ old('habitos', $registro->habitos) }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="medicamentos_actuales">Medicamentos Actuales</label>
+                            <textarea name="medicamentos_actuales" id="medicamentos_actuales" class="form-control" rows="3" placeholder="Medicamentos que toma actualmente">{{ old('medicamentos_actuales', $registro->medicamentos_actuales) }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="alergias">Alergias</label>
+                            <textarea name="alergias" id="alergias" class="form-control" rows="3" placeholder="Alergias conocidas">{{ old('alergias', $registro->alergias) }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="vacunas">Vacunas</label>
+                            <textarea name="vacunas" id="vacunas" class="form-control" rows="3" placeholder="Historial de vacunación">{{ old('vacunas', $registro->vacunas) }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="examenes_fisicos">Exámenes Físicos</label>
+                            <textarea name="examenes_fisicos" id="examenes_fisicos" class="form-control" rows="3" placeholder="Resultados de exámenes físicos">{{ old('examenes_fisicos', $registro->examenes_fisicos) }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="notas_importantes">Notas Importantes</label>
+                            <textarea name="notas_importantes" id="notas_importantes" class="form-control" rows="3" placeholder="Observaciones adicionales">{{ old('notas_importantes', $registro->notas_importantes) }}</textarea>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>

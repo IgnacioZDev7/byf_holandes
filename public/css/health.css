@@ -1,0 +1,64 @@
+/* Paleta orientada a salud: teals/azules suaves */
+:root {
+    --health-teal: #0f766e;
+    --health-light: #e0f2f1;
+    --health-accent: #0ea5e9;
+    --health-gray: #f5f7fb;
+}
+
+.sidebar-dark-teal {
+    background: linear-gradient(180deg, var(--health-teal), #0b524c);
+}
+
+.sidebar-dark-teal .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--health-accent);
+}
+
+.sidebar-dark-teal .brand-link {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.navbar-teal {
+    background: linear-gradient(90deg, var(--health-teal), #0ea5e9);
+}
+
+.login-page, .register-page {
+    background: radial-gradient(circle at 20% 20%, rgba(14,165,233,0.15), transparent 40%), radial-gradient(circle at 80% 0%, rgba(14,165,233,0.15), transparent 35%), linear-gradient(180deg, #ffffff, #f0f5f5);
+    min-height: 100vh;
+}
+
+.login-card-body, .register-card-body {
+    border-top: 3px solid var(--health-teal);
+}
+
+.login-logo a {
+    color: var(--health-teal);
+}
+
+.content-wrapper {
+    background-color: var(--health-gray);
+}
+
+.small-box.bg-info {
+    background: linear-gradient(135deg, var(--health-accent), #38bdf8) !important;
+}
+
+.small-box.bg-success {
+    background: linear-gradient(135deg, var(--health-teal), #14b8a6) !important;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+    background-color: var(--health-teal);
+    border-color: var(--health-teal);
+}
+
+.btn-primary:hover {
+    background-color: #0b524c;
+    border-color: #0b524c;
+}

@@ -5,18 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CatProcedimiento extends Model
+class CatTipoSangre extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
-
-    protected $table = 'cat_procedimientos';
+    protected $table = 'cat_tipos_sangre';
 
     protected $fillable = [
         'codigo',
-        'nombre',
-        'area',
-        'activa',
+        'descripcion',
     ];
+
+    public $timestamps = false;
 }

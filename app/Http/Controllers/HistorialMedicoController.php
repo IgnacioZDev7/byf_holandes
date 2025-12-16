@@ -10,10 +10,44 @@ use Illuminate\Http\Request;
 
 class HistorialMedicoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $registros = HistorialMedico::with(['paciente', 'consulta'])->orderByDesc('fecha')->paginate(15);
-        return view('historial.index', compact('registros'));
+        $query = HistorialMedico::with(['paciente', 'consulta']);
+
+        // Filtros
+        if ($request->filled('paciente_id')) {
+            $query->where('paciente_id', $request->paciente_id);
+        }
+
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('fecha', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('fecha', '<=', $request->fecha_hasta);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('resumen', 'like', "%{$search}%")
+                  ->orWhere('diagnostico', 'like', "%{$search}%")
+                  ->orWhere('tratamiento', 'like', "%{$search}%")
+                  ->orWhereHas('paciente', function($pq) use ($search) {
+                      $pq->where('nombre', 'like', "%{$search}%")
+                         ->orWhere('apellido_paterno', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $registros = $query->orderByDesc('fecha')->paginate(15)->withQueryString();
+
+        // Datos para los filtros
+        $pacientes = User::whereHas('roles', function($q) {
+            $q->where('name', 'paciente');
+        })->orderBy('nombre')->get();
+
+        return view('historial.index', compact('registros', 'pacientes'));
     }
 
     public function create()
@@ -67,6 +101,14 @@ class HistorialMedicoController extends Controller
             'diagnostico' => ['nullable', 'string'],
             'tratamiento' => ['nullable', 'string'],
             'consulta_id' => ['nullable', 'exists:consulta_medica,id'],
+            'antecedentes_personales' => ['nullable', 'string'],
+            'antecedentes_familiares' => ['nullable', 'string'],
+            'habitos' => ['nullable', 'string'],
+            'medicamentos_actuales' => ['nullable', 'string'],
+            'alergias' => ['nullable', 'string'],
+            'vacunas' => ['nullable', 'string'],
+            'examenes_fisicos' => ['nullable', 'string'],
+            'notas_importantes' => ['nullable', 'string'],
         ]);
     }
 }
