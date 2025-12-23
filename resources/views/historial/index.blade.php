@@ -76,6 +76,8 @@
                         <th>Fecha</th>
                         <th>Paciente</th>
                         <th>Resumen</th>
+                        <th>Antecedentes</th>
+                        <th>Hábitos/Medic.</th>
                         <th>Consulta</th>
                         <th class="text-end">Acciones</th>
                     </tr>
@@ -86,8 +88,23 @@
                             <td>{{ $reg->fecha }}</td>
                             <td>{{ $reg->paciente->nombre ?? '-' }}</td>
                             <td>{{ Str::limit($reg->resumen, 40) }}</td>
+                            <td>
+                                @php
+                                    $anteced = $reg->antecedentes_personales ?: $reg->antecedentes_familiares;
+                                @endphp
+                                {{ $anteced ? Str::limit($anteced, 35) : '-' }}
+                            </td>
+                            <td>
+                                @php
+                                    $hab = $reg->habitos ?: $reg->medicamentos_actuales;
+                                @endphp
+                                {{ $hab ? Str::limit($hab, 35) : '-' }}
+                            </td>
                             <td>{{ $reg->consulta_id ? '#'.$reg->consulta_id : '-' }}</td>
                             <td class="text-end">
+                                <a href="{{ route('historial-medico.show', $reg) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                                 <a href="{{ route('historial-medico.edit', $reg) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>

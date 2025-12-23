@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Vincular pacientes incluyendo soft deletes
+        Route::bind('paciente', function ($value) {
+            return User::withTrashed()->findOrFail($value);
+        });
+
         \Gate::define('view-users', function ($user) {
             return $user->hasRole('admin');
         });
@@ -41,6 +48,10 @@ class AppServiceProvider extends ServiceProvider
 
         \Gate::define('view-recetas', function ($user) {
             return $user->hasRole(['admin', 'medico', 'farmacia']);
+        });
+
+        \Gate::define('view-historial', function ($user) {
+            return $user->hasRole(['admin', 'medico']);
         });
 
         \Gate::define('view-catalogos', function ($user) {

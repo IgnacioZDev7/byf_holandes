@@ -55,7 +55,7 @@ class ConsultaController extends Controller
         })->orderBy('nombre')->get();
 
         $medicos = User::whereHas('roles', function($q) {
-            $q->where('name', 'doctor');
+            $q->where('name', 'medico');
         })->orderBy('nombre')->get();
 
         return view('consultas.index', compact('consultas', 'pacientes', 'medicos'));
@@ -81,6 +81,62 @@ class ConsultaController extends Controller
         return $this->formResponse($consulta, 'edit');
     }
 
+    public function show(ConsultaMedica $consulta)
+    {
+        $consulta->load(['medico', 'paciente', 'procedimientos']);
+        return view('consultas.show', compact('consulta'));
+    }
+
+    public function pdf(ConsultaMedica $consulta)
+    {
+        $consulta->load(['medico', 'paciente', 'procedimientos']);
+        $pdf = \PDF::loadView('consultas.pdf', compact('consulta'));
+        return $pdf->download('consulta_' . $consulta->id . '.pdf');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $consultas = $this->filteredQuery($request)
+            ->with(['medico', 'paciente'])
+            ->orderByDesc('fecha')
+            ->get();
+
+        $pdf = \PDF::loadView('consultas.export_pdf', compact('consultas'));
+        return $pdf->download('consultas.pdf');
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $consultas = $this->filteredQuery($request)
+            ->with(['medico', 'paciente'])
+            ->orderByDesc('fecha')
+            ->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="consultas.csv"',
+        ];
+
+        $callback = function() use ($consultas) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['Fecha', 'Hora', 'Médico', 'Paciente', 'Motivo', 'Diagnóstico', 'Tratamiento']);
+            foreach ($consultas as $c) {
+                fputcsv($handle, [
+                    $c->fecha,
+                    $c->hora,
+                    trim(($c->medico->nombre ?? '') . ' ' . ($c->medico->apellido_paterno ?? '')),
+                    trim(($c->paciente->nombre ?? '') . ' ' . ($c->paciente->apellido_paterno ?? '')),
+                    $c->motivo,
+                    $c->diagnostico,
+                    $c->tratamiento,
+                ]);
+            }
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function update(Request $request, ConsultaMedica $consulta): RedirectResponse
     {
         $data = $this->validateData($request, $consulta->id);
@@ -99,11 +155,54 @@ class ConsultaController extends Controller
 
     protected function formResponse(ConsultaMedica $consulta, string $mode)
     {
-        $medicos = User::orderBy('nombre')->get();
-        $pacientes = User::orderBy('nombre')->get();
+        $medicos = User::whereHas('roles', function($q) {
+            $q->where('name', 'medico');
+        })->orderBy('nombre')->get();
+
+        $pacientes = User::whereHas('roles', function($q) {
+            $q->where('name', 'paciente');
+        })->orderBy('nombre')->get();
         $procedimientos = CatProcedimiento::orderBy('area')->orderBy('nombre')->get()->groupBy('area');
 
         return view('consultas.form', compact('consulta', 'medicos', 'pacientes', 'procedimientos', 'mode'));
+    }
+
+    protected function filteredQuery(Request $request)
+    {
+        $query = ConsultaMedica::query();
+
+        if ($request->filled('paciente_id')) {
+            $query->where('paciente_id', $request->paciente_id);
+        }
+
+        if ($request->filled('medico_id')) {
+            $query->where('medico_id', $request->medico_id);
+        }
+
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('fecha', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('fecha', '<=', $request->fecha_hasta);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('motivo', 'like', "%{$search}%")
+                  ->orWhereHas('paciente', function($pq) use ($search) {
+                      $pq->where('nombre', 'like', "%{$search}%")
+                         ->orWhere('apellido_paterno', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('medico', function($mq) use ($search) {
+                      $mq->where('nombre', 'like', "%{$search}%")
+                         ->orWhere('apellido_paterno', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        return $query;
     }
 
     protected function validateData(Request $request, ?int $id = null): array

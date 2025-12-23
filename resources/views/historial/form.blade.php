@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-    <div class="card">
+    <div class="card shadow-sm mx-auto" style="max-width: 1100px;">
         <div class="card-body">
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -25,7 +25,7 @@
                     @method('PUT')
                 @endif
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="paciente_id">Paciente</label>
@@ -76,7 +76,7 @@
                 <hr>
                 <h4>Información Detallada del Historial Médico</h4>
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="antecedentes_personales">Antecedentes Personales</label>
@@ -91,7 +91,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="habitos">Hábitos</label>
@@ -106,7 +106,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="alergias">Alergias</label>
@@ -134,6 +134,11 @@
                             <textarea name="notas_importantes" id="notas_importantes" class="form-control" rows="3" placeholder="Observaciones adicionales">{{ old('notas_importantes', $registro->notas_importantes) }}</textarea>
                         </div>
                     </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                    <a href="{{ route('historial-medico.index') }}" class="btn btn-secondary mr-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">{{ $mode === 'create' ? 'Crear' : 'Actualizar' }}</button>
                 </div>
             </form>
         </div>

@@ -110,15 +110,7 @@ return [
     */
 
     'preloader' => [
-        'enabled' => true,
-        'mode' => 'fullscreen',
-        'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-            'alt' => 'AdminLTE Preloader Image',
-            'effect' => 'animation__shake',
-            'width' => 60,
-            'height' => 60,
-        ],
+        'enabled' => false,
     ],
 
     /*
@@ -512,6 +504,11 @@ return [
                     'type' => 'css',
                     'asset' => true,
                     'location' => 'css/health.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => 'js/disable-preloader.js',
                 ],
             ],
         ],

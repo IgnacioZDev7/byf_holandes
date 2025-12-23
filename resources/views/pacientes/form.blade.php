@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-    <div class="card">
+    <div class="card shadow-sm mx-auto" style="max-width: 1100px;">
         <div class="card-body">
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -26,7 +26,7 @@
                 @endif
 
                 <h4>Datos personales</h4>
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="nombre">Nombre</label>
@@ -47,7 +47,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="ci">CI</label>
@@ -68,7 +68,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="tipo_sangre_id">Tipo de sangre</label>
@@ -110,7 +110,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="genero_id">Género</label>
@@ -132,7 +132,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="enfermedades_cronicas">Enfermedades crónicas</label>
@@ -148,7 +148,7 @@
                 </div>
 
                 <h4>Dirección</h4>
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="zona">Zona</label>

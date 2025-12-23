@@ -67,6 +67,19 @@ class HistorialMedicoController extends Controller
         return $this->formResponse($historial_medico, 'edit');
     }
 
+    public function show(HistorialMedico $historial_medico)
+    {
+        $historial_medico->load(['paciente', 'consulta']);
+        return view('historial.show', ['registro' => $historial_medico]);
+    }
+
+    public function pdf(HistorialMedico $historial_medico)
+    {
+        $historial_medico->load(['paciente', 'consulta']);
+        $pdf = \PDF::loadView('historial.pdf', ['registro' => $historial_medico]);
+        return $pdf->download('historial_' . $historial_medico->id . '.pdf');
+    }
+
     public function update(Request $request, HistorialMedico $historial_medico): RedirectResponse
     {
         $data = $this->validateData($request);

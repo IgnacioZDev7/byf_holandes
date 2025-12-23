@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             RolesPermissionsSeeder::class,
             ProcedimientosSeeder::class,
             CategoriasPruebasSeeder::class,
+            PacientesDemoSeeder::class,
+            DemoDataSeeder::class,
+            BulkDemoSeeder::class,
         ]);
     }
 }

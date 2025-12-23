@@ -15,7 +15,12 @@ class PacienteController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with(['perfilPaciente', 'direcciones', 'emergencyContacts']);
+        $query = User::withTrashed()->with([
+            'perfilPaciente.tipoSangre',
+            'perfilPaciente.genero',
+            'direcciones',
+            'emergencyContacts'
+        ]);
 
         // Filtros
         if ($request->filled('search')) {
@@ -119,9 +124,21 @@ class PacienteController extends Controller
 
     public function destroy(User $paciente): RedirectResponse
     {
-        $paciente->delete();
+        if ($paciente->trashed()) {
+            $paciente->restore();
+            $paciente->perfilPaciente()?->restore();
+            $paciente->direcciones()->withTrashed()->restore();
+            $paciente->emergencyContacts()->withTrashed()->restore();
+            $message = 'Paciente activado';
+        } else {
+            $paciente->delete();
+            $paciente->perfilPaciente()?->delete();
+            $paciente->direcciones()->delete();
+            $paciente->emergencyContacts()->delete();
+            $message = 'Paciente desactivado';
+        }
 
-        return redirect()->route('pacientes.index')->with('status', 'Paciente eliminado');
+        return redirect()->route('pacientes.index')->with('status', $message);
     }
 
     protected function formResponse(User $user, PacienteProfile $perfil, Direccion $direccion, EmergencyContact $contacto, string $mode)

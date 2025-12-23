@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-    <div class="card">
+    <div class="card shadow-sm mx-auto" style="max-width: 900px;">
         <div class="card-body">
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -25,7 +25,7 @@
                     @method('PUT')
                 @endif
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="paciente_id">Paciente</label>
@@ -42,10 +42,9 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="emision">Fecha y hora de emisión</label>
-                            <input type="datetime-local" name="emision" id="emision" class="form-control" value="{{ old('emision', optional($turno->emision)->format('Y-m-d\TH:i')) }}" required>
+                            <input type="datetime-local" name="emision" id="emision" class="form-control" value="{{ old('emision', optional($turno->emision)->format('Y-m-d\\TH:i')) }}" required>
                         </div>
                     </div>
-                <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="medico_id">Médico</label>
@@ -74,7 +73,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="motivo">Motivo</label>
@@ -98,8 +97,9 @@
                     <label for="observaciones">Observaciones</label>
                     <textarea name="observaciones" id="observaciones" class="form-control" rows="3">{{ old('observaciones', $turno->observaciones) }}</textarea>
                 </div>
+                <div class="d-flex justify-content-end">
                     <a href="{{ route('turnos.index') }}" class="btn btn-secondary mr-2">Cancelar</a>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="submit" class="btn btn-primary">{{ $mode === 'create' ? 'Crear' : 'Actualizar' }}</button>
                 </div>
             </form>
         </div>

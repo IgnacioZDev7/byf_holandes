@@ -35,10 +35,16 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin|medico|secretaria')->group(function () {
-        Route::resource('pacientes', PacienteController::class)->parameters(['pacientes' => 'paciente']);
+        Route::resource('pacientes', PacienteController::class)
+            ->parameters(['pacientes' => 'paciente'])
+            ->withTrashed(['show', 'edit']);
         Route::resource('consultas', ConsultaController::class);
+        Route::get('consultas/{consulta}/pdf', [ConsultaController::class, 'pdf'])->name('consultas.pdf');
+        Route::get('consultas-export/pdf', [ConsultaController::class, 'exportPdf'])->name('consultas.export.pdf');
+        Route::get('consultas-export/csv', [ConsultaController::class, 'exportCsv'])->name('consultas.export.csv');
         Route::resource('turnos', FichaTurnoController::class)->parameters(['turnos' => 'turno']);
         Route::get('turnos/{turno}/pdf', [FichaTurnoController::class, 'pdf'])->name('turnos.pdf');
+        Route::patch('turnos/{turno}/estado', [FichaTurnoController::class, 'cambiarEstado'])->name('turnos.estado');
     });
 
     Route::middleware('role:admin|medico|farmacia')->group(function () {
@@ -65,6 +71,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin|medico')->group(function () {
         Route::resource('historial-medico', HistorialMedicoController::class)->parameters(['historial-medico' => 'historial_medico']);
+        Route::get('historial-medico/{historial_medico}/pdf', [HistorialMedicoController::class, 'pdf'])->name('historial-medico.pdf');
     });
 });
 

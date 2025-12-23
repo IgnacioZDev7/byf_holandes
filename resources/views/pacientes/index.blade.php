@@ -81,30 +81,36 @@
                 <thead>
                     <tr>
                         <th>Nombre</th>
-                        <th>Email</th>
+                        <th>Apellidos</th>
                         <th>Teléfono</th>
                         <th>Tipo sangre</th>
                         <th>Género</th>
+                        <th>Estado</th>
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($pacientes as $paciente)
                         <tr>
-                            <td>{{ $paciente->nombre }} {{ $paciente->apellido_paterno }}</td>
-                            <td>{{ $paciente->email }}</td>
+                            <td>{{ $paciente->nombre }}</td>
+                            <td>{{ trim($paciente->apellido_paterno . ' ' . ($paciente->apellido_materno ?? '')) }}</td>
                             <td>{{ $paciente->telefono ?? '-' }}</td>
-                            <td>{{ optional($paciente->perfilPaciente)->tipo_sangre_id ?? '-' }}</td>
-                            <td>{{ optional($paciente->perfilPaciente)->genero_id ?? '-' }}</td>
+                            <td>{{ $paciente->perfilPaciente?->tipoSangre?->codigo ?? '-' }}</td>
+                            <td>{{ $paciente->perfilPaciente?->genero?->nombre ?? '-' }}</td>
+                            <td>
+                                <span class="badge {{ $paciente->trashed() ? 'badge-secondary' : 'badge-success' }}">
+                                    {{ $paciente->trashed() ? 'Inactivo' : 'Activo' }}
+                                </span>
+                            </td>
                             <td class="text-end">
                                 <a href="{{ route('pacientes.edit', $paciente) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('pacientes.destroy', $paciente) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar paciente?');">
+                                <form action="{{ route('pacientes.destroy', $paciente) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Cambiar estado del paciente?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn btn-sm {{ $paciente->trashed() ? 'btn-success' : 'btn-danger' }}">
+                                        <i class="fas {{ $paciente->trashed() ? 'fa-undo' : 'fa-ban' }}"></i>
                                     </button>
                                 </form>
                             </td>

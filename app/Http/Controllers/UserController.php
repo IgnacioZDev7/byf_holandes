@@ -137,9 +137,13 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
-        // Evitar que el usuario se elimine a sí mismo.
+        // Evitar autodestrucción y proteger usuarios con rol admin.
         if (auth()->id() === $user->id) {
             return back()->with('status', 'No puedes eliminar tu propio usuario.');
+        }
+
+        if ($user->hasRole('admin')) {
+            return back()->with('status', 'No se permite eliminar usuarios con rol administrador.');
         }
 
         $user->delete();

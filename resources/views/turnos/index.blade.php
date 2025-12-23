@@ -126,6 +126,17 @@
                             </td>
                             <td>{{ optional($turno->emision)->format('d/m/Y H:i') }}</td>
                             <td class="text-end">
+                                <form action="{{ route('turnos.estado', $turno) }}" method="POST" class="d-inline-flex align-items-center gap-1">
+                                    @csrf
+                                    @method('PATCH')
+                                    <select name="estado" class="form-select form-select-sm w-auto">
+                                        <option value="pendiente" @selected($turno->estado === 'pendiente')>Pendiente</option>
+                                        <option value="confirmado" @selected($turno->estado === 'confirmado')>Confirmado</option>
+                                        <option value="atendido" @selected($turno->estado === 'atendido')>Atendido</option>
+                                        <option value="cancelado" @selected($turno->estado === 'cancelado')>Cancelado</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Cambiar</button>
+                                </form>
                                 <a href="{{ route('turnos.pdf', $turno) }}" class="btn btn-sm btn-info" target="_blank">
                                     <i class="fas fa-print"></i> PDF
                                 </a>

@@ -63,7 +63,7 @@ class FichaTurnoController extends Controller
         })->orderBy('nombre')->get();
 
         $medicos = User::whereHas('roles', function($q) {
-            $q->where('name', 'doctor');
+            $q->where('name', 'medico');
         })->orderBy('nombre')->get();
 
         $especialidades = \App\Models\Especialidad::orderBy('nombre')->get();
@@ -101,15 +101,37 @@ class FichaTurnoController extends Controller
         return redirect()->route('turnos.index')->with('status', 'Turno eliminado');
     }
 
+    public function cambiarEstado(Request $request, FichaTurno $turno): RedirectResponse
+    {
+        $data = $request->validate([
+            'estado' => ['required', 'in:pendiente,confirmado,atendido,cancelado'],
+        ]);
+
+        $turno->estado = $data['estado'];
+        $turno->save();
+
+        return redirect()->route('turnos.index')->with('status', 'Estado actualizado');
+    }
+
     public function pdf(FichaTurno $turno)
     {
+        $turno->load([
+            'paciente.perfilPaciente.tipoSangre',
+            'paciente.perfilPaciente.genero',
+            'medico',
+            'especialidad',
+        ]);
+
         $pdf = \PDF::loadView('turnos.ficha_pdf', compact('turno'));
         return $pdf->download('ficha_turno_' . $turno->id . '.pdf');
     }
 
     protected function formResponse(FichaTurno $turno, string $mode)
     {
-        $pacientes = User::orderBy('nombre')->get();
+        $pacientes = User::whereHas('roles', function($q) {
+            $q->where('name', 'paciente');
+        })->orderBy('nombre')->get();
+
         $medicos = User::whereHas('roles', function($q) {
             $q->where('name', 'medico');
         })->orderBy('nombre')->get();

@@ -62,3 +62,10 @@
     background-color: #0b524c;
     border-color: #0b524c;
 }
+
+/* Fuerza ocultar preloader en caso de quedar activo por cache */
+.preloader {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}

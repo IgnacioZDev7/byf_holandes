@@ -68,6 +68,12 @@
                     <a href="{{ route('consultas.index') }}" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Limpiar
                     </a>
+                    <a href="{{ route('consultas.export.pdf', request()->all()) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </a>
+                    <a href="{{ route('consultas.export.csv', request()->all()) }}" class="btn btn-outline-success">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </a>
                 </div>
             </form>
         </div>
@@ -88,8 +94,6 @@
                         <th>Médico</th>
                         <th>Paciente</th>
                         <th>Motivo</th>
-                        <th>Presión</th>
-                        <th>Temperatura</th>
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
@@ -100,9 +104,10 @@
                             <td>{{ $consulta->medico->nombre ?? '-' }}</td>
                             <td>{{ $consulta->paciente->nombre ?? '-' }}</td>
                             <td>{{ $consulta->motivo }}</td>
-                            <td>{{ $consulta->presion_arterial ?? '-' }}</td>
-                            <td>{{ $consulta->temperatura ? $consulta->temperatura . '°C' : '-' }}</td>
                             <td class="text-end">
+                                <a href="{{ route('consultas.show', $consulta) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                                 <a href="{{ route('consultas.edit', $consulta) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>

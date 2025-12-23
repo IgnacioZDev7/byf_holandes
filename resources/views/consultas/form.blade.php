@@ -9,7 +9,7 @@
 @section('plugins.Select2', true)
 
 @section('content')
-    <div class="card">
+    <div class="card shadow-sm mx-auto" style="max-width: 1100px;">
         <div class="card-body">
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -27,7 +27,7 @@
                     @method('PUT')
                 @endif
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="medico_id">Médico</label>
@@ -56,7 +56,7 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="fecha">Fecha</label>
@@ -78,7 +78,7 @@
                 </div>
 
                 <h4 class="mt-4">Signos Vitales</h4>
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="presion_arterial">Presión Arterial</label>
